@@ -1,0 +1,181 @@
+def main():
+    # Input des revenus et des montants sur les comptes
+    revenu_felix_initial = float(input("Etat du compte de Félix : "))
+    revenu_myriam_initial = float(input("Etat du compte de Myriam : "))
+    compte_epargne_initial = float(input("Etat du compte d'épargne : "))
+    compte_commun = float(input("Etat du compte commun : "))
+
+    somme_depart = revenu_felix_initial + revenu_myriam_initial + compte_commun
+    # Dépenses
+    depenses_communes = 1181
+    depenses_perso_felix = 1102
+    depenses_perso_myriam = 1146
+
+    # Transactions nécessaires
+    transactions = []
+    contribution_totale = 0
+    contribution_epargne = 0
+    compte_epargne = compte_epargne_initial
+    contribution_compte_commun = min(compte_commun, depenses_communes)
+
+    # Priorité 1 : Utiliser le compte commun
+    contribution_totale += contribution_compte_commun
+    manque = depenses_communes - contribution_totale
+
+    # Calcul des contributions proportionnelles aux montants disponibles
+    total_fonds_disponibles = revenu_felix_initial + revenu_myriam_initial
+    part_felix = part_myriam = 0
+
+    if total_fonds_disponibles > 0:
+        part_felix = min(revenu_felix_initial, manque * (revenu_felix_initial / total_fonds_disponibles))
+        part_myriam = min(revenu_myriam_initial, manque * (revenu_myriam_initial / total_fonds_disponibles))
+
+    # Contribution de Félix
+    if part_felix > 0:
+        transactions.append(f"Félix doit transférer {part_felix:.2f} EUR au compte commun.")
+        revenu_felix_initial -= part_felix
+        contribution_totale += part_felix
+
+    # Contribution de Myriam
+    if part_myriam > 0:
+        transactions.append(f"Myriam doit transférer {part_myriam:.2f} EUR au compte commun.")
+        revenu_myriam_initial -= part_myriam
+        contribution_totale += part_myriam
+
+    # Vérification si le compte commun a encore besoin d'argent et épuisement des revenus
+    manque = depenses_communes - contribution_totale
+
+    # Utiliser l'épargne si nécessaire après épuisement des revenus
+    if manque > 0:
+        if compte_epargne >= manque:
+            transactions.append(f"Transférer {manque:.2f} EUR du compte d'épargne au compte commun pour couvrir les dépenses communes.")
+            compte_epargne -= manque
+            contribution_epargne += manque
+            contribution_totale += manque
+        else:
+            transactions.append(f"Transférer {compte_epargne:.2f} EUR du compte d'épargne au compte commun (fonds insuffisants pour couvrir toutes les dépenses communes).")
+            contribution_epargne += compte_epargne
+            contribution_totale += compte_epargne
+            compte_epargne = 0
+
+    # Mise à jour après l'utilisation de l'épargne pour les dépenses communes
+    revenu_felix = max(revenu_felix_initial, 0)
+    revenu_myriam = max(revenu_myriam_initial, 0)
+
+    # Recalcul du total des revenus après contributions
+    total_revenu = revenu_felix + revenu_myriam
+
+    # Calcul des fonds disponibles après contribution aux dépenses communes
+    fonds_disponibles_felix = max(revenu_felix - depenses_perso_felix, 0)
+    fonds_disponibles_myriam = max(revenu_myriam - depenses_perso_myriam, 0)
+
+    # Priorité 2 et 3 : Couvrir les dépenses personnelles et équilibrer
+    total_fonds_disponibles = revenu_felix + revenu_myriam
+    total_depenses_perso = depenses_perso_felix + depenses_perso_myriam
+
+    if total_depenses_perso > 0:
+        pourcentage_satisfaction_total = min(total_fonds_disponibles / total_depenses_perso, 1)
+    else:
+        pourcentage_satisfaction_total = 0
+
+    # Satisfaction égale pour les dépenses personnelles
+    satisfaction_felix = pourcentage_satisfaction_total * depenses_perso_felix
+    satisfaction_myriam = pourcentage_satisfaction_total * depenses_perso_myriam
+
+    # Ajustement pour équilibrer les dépenses personnelles
+    manque_felix = satisfaction_felix - revenu_felix
+    manque_myriam = satisfaction_myriam - revenu_myriam
+
+    if manque_felix > 0:
+        transactions.append(f"Myriam doit transférer {manque_felix:.2f} EUR à Félix pour équilibrer les dépenses personnelles.")
+        revenu_myriam -= manque_felix
+        revenu_felix += manque_felix
+
+    elif manque_myriam > 0:
+        transactions.append(f"Félix doit transférer {manque_myriam:.2f} EUR à Myriam pour équilibrer les dépenses personnelles.")
+        revenu_felix -= manque_myriam
+        revenu_myriam += manque_myriam
+
+    # Mise à jour des fonds après ajustement des fonds personnels
+    revenu_felix -= satisfaction_felix
+    revenu_myriam -= satisfaction_myriam
+
+    pourcentage_satisfaction_felix = satisfaction_felix / depenses_perso_felix if depenses_perso_felix > 0 else 0
+    pourcentage_satisfaction_myriam = satisfaction_myriam / depenses_perso_myriam if depenses_perso_myriam > 0 else 0
+
+    # Priorité 4 : Épargner tout excédent seulement si les dépenses perso sont satisfaites à 100%
+    excedent_felix = max(revenu_felix, 0)
+    excedent_myriam = max(revenu_myriam, 0)
+
+    total_epargne_ce_mois = 0  # Montant total épargné ce mois
+
+    if excedent_felix > 0:
+        transactions.append(f"Félix doit transférer {excedent_felix:.2f} EUR au compte d'épargne.")
+        compte_epargne += excedent_felix
+        total_epargne_ce_mois += excedent_felix
+
+    if excedent_myriam > 0:
+        transactions.append(f"Myriam doit transférer {excedent_myriam:.2f} EUR au compte d'épargne.")
+        compte_epargne += excedent_myriam
+        total_epargne_ce_mois += excedent_myriam
+
+    # Calcul du pourcentage de l'épargne par rapport au revenu total pour le mois courant
+    pourcentage_epargne_ce_mois = (total_epargne_ce_mois / somme_depart) * 100 if (somme_depart) > 0 else 0
+
+    # Progression epargne
+    progression_epargne = (total_epargne_ce_mois / compte_epargne_initial)*100 if (compte_epargne_initial) > 0 else 0
+
+    # Calcul des pourcentages de contribution aux dépenses communes
+    pourcentage_contribution_felix = (part_felix / depenses_communes) * 100 if depenses_communes > 0 else 0
+    pourcentage_contribution_myriam = (part_myriam / depenses_communes) * 100 if depenses_communes > 0 else 0
+    pourcentage_contribution_epargne = (contribution_epargne / depenses_communes) * 100 if depenses_communes > 0 else 0
+    pourcentage_contribution_compte_commun = (contribution_compte_commun / depenses_communes) * 100 if depenses_communes > 0 else 0
+
+    # Affichage des résultats
+    print("\n--- Transactions proposées ---\n")
+    for transaction in transactions:
+        print(transaction)
+
+    print("\n--- Résultat financier ---\n")
+    print(f"Somme mobilisable hors épargne : {somme_depart:.2f} EUR\n")
+
+    print("\n--- Contributions aux dépenses communes ---")
+    print(f"Contribution initiale du compte commun : {contribution_compte_commun:.2f} EUR ({pourcentage_contribution_compte_commun:.2f}%)")
+    print(f"Contribution de Félix : {part_felix:.2f} EUR ({pourcentage_contribution_felix:.2f}%)")
+    print(f"Contribution de Myriam : {part_myriam:.2f} EUR ({pourcentage_contribution_myriam:.2f}%)")
+    print(f"Contribution du compte d'épargne : {contribution_epargne:.2f} EUR ({pourcentage_contribution_epargne:.2f}%)")
+
+    print("\n--- Dépenses Personnelles ---")
+    reset = "\033[0m"
+    if pourcentage_satisfaction_felix <= 0.9:
+        color = "\033[91m"  # Rouge
+    else:
+        color = "\033[92m"  # Vert
+
+    print(f"Reste à vivre de Félix : {color}{satisfaction_felix:.2f} EUR{reset} sur {depenses_perso_felix} EUR ({color}{pourcentage_satisfaction_felix:.2%}{reset})")
+    if pourcentage_satisfaction_myriam <= 0.9:
+        color = "\033[91m"  # Rouge
+    else:
+        color = "\033[92m"  # Vert
+
+    print(f"Reste à vivre de Myriam : {color}{satisfaction_myriam:.2f} EUR{reset} sur {depenses_perso_myriam} EUR ({color}{pourcentage_satisfaction_myriam:.2%}{reset})")
+
+    print("\n--- Épargne ---")
+
+    reset = "\033[0m"
+    if pourcentage_epargne_ce_mois <= 5:
+        color = "\033[94m"  # Bleu
+    elif pourcentage_epargne_ce_mois <= 10:
+        color = "\033[93m"  # Jaune
+    else:
+        color = "\033[92m"  # Vert
+
+    print(f"Montant épargné ce mois : {color}{total_epargne_ce_mois:.2f} EUR{reset}, soit {color}{pourcentage_epargne_ce_mois:.2f}% {reset}du total des revenus initiaux de Félix et Myriam")
+        color = "\033[92m" if progression_epargne > 0 else "\033[91m"
+        reset = "\033[0m"
+        print(f"Évolution du compte d'épargne : {compte_epargne_initial:.2f} EUR -> {compte_epargne:.2f} EUR {color}({progression_epargne:+.2f}%) {reset}\n")
+
+if __name__ == "__main__":
+    import os
+    os.system('cls' if os.name == 'nt' else 'clear')
+    main()

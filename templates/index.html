@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoCry</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 80%;
+        }
+        .form-container, .transactions-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h2, h3 {
+            color: #4CAF50;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        p {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>NoCry</h1>
+    <div class="container">
+        <div class="form-container">
+            <form method="POST">
+                <label for="revenu_felix">Etat du compte de Félix :</label>
+                <input type="number" name="revenu_felix" step="0.1" value="{{ request.form.revenu_felix }}" required>
+
+                <label for="revenu_myriam">Etat du compte de Myriam :</label>
+                <input type="number" name="revenu_myriam" step="0.1" value="{{ request.form.revenu_myriam }}" required>
+
+                <label for="compte_epargne_initial">Etat du compte d'épargne :</label>
+                <input type="number" name="compte_epargne_initial" step="0.1" value="{{ request.form.compte_epargne_initial }}" required>
+
+                <label for="compte_commun">Etat du compte commun :</label>
+                <input type="number" name="compte_commun" step="0.1" value="{{ request.form.compte_commun }}" required>
+
+                <button type="submit">Calculer</button>
+            </form>
+        </div>
+
+        {% if transactions %}
+        <div class="transactions-container">
+            <h2>Transactions proposées</h2>
+            <ul>
+                {% for transaction in transactions %}
+                    <li>{{ transaction }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if transactions %}
+    <div class="result-container">
+        <h2>Résultat financier</h2>
+        <p>Somme mobilisable hors épargne : {{ somme_depart }} EUR</p>
+
+        <h3>Contributions aux dépenses communes</h3>
+        <ul>
+            <li>Contribution initiale du compte commun : {{ contribution_compte_commun }} EUR ({{ pourcentage_contribution_compte_commun }}%)</li>
+            <li>Contribution de Félix : {{ part_felix }} EUR ({{ pourcentage_contribution_felix }}%)</li>
+            <li>Contribution de Myriam : {{ part_myriam }} EUR ({{ pourcentage_contribution_myriam }}%)</li>
+            <li>Contribution du compte d'épargne : {{ contribution_epargne }} EUR ({{ pourcentage_contribution_epargne }}%)</li>
+        </ul>
+
+        <h3>Dépenses Personnelles</h3>
+        <ul>
+            <li>Reste à vivre de Félix : {{ satisfaction_felix }} EUR sur {{ depenses_perso_felix }} EUR 
+                <span style="color: {% if 0 <= pourcentage_satisfaction_felix < 80 %}red{% elif 80 <= pourcentage_satisfaction_felix < 90 %}darkorange{% else %}green{% endif %}; font-weight: bold;">
+                    ({{ pourcentage_satisfaction_felix }}%)
+                </span>
+            </li>
+            <li>Reste à vivre de Myriam : {{ satisfaction_myriam }} EUR sur {{ depenses_perso_myriam }} EUR 
+                <span style="color: {% if 0 <= pourcentage_satisfaction_myriam < 80 %}red{% elif 80 <= pourcentage_satisfaction_myriam < 90 %}darkorange{% else %}green{% endif %}; font-weight: bold;">
+                    ({{ pourcentage_satisfaction_myriam }}%)
+                </span>
+            </li>
+        </ul>
+
+        <h3>Épargne</h3>
+        <ul>
+            <li>Montant épargné ce mois : {{ total_epargne_ce_mois }} EUR, soit 
+                <span style="color: {% if 0 <= pourcentage_epargne_ce_mois <= 5 %}blue{% elif 5 < pourcentage_epargne_ce_mois <= 10 %}darkorange{% else %}green{% endif %}; font-weight: bold;">
+                    {{ pourcentage_epargne_ce_mois }}%
+                </span> 
+                du revenu global mensuel
+            </li>
+            <li>Évolution du compte d'épargne : {{ compte_epargne_initial }} EUR ➔ {{ compte_epargne }} EUR 
+                <span style="color: {% if progression_epargne < 0 %}red; font-weight: bold;{% else %}green{% endif %};">
+                    ({{ progression_epargne }}%)
+                </span>
+            </li>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+</body>
+</html>
