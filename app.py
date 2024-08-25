@@ -10,11 +10,11 @@ def index():
         compte_epargne_initial = round(float(request.form['compte_epargne_initial']), 2)
         compte_commun = round(float(request.form['compte_commun']), 2)
 
-        # Calculs (AJOUTER NOS VALEURS ICI)
+        # Calculs
         somme_depart = round(revenu_felix + revenu_myriam + compte_commun, 2)
-        depenses_communes = 1
-        depenses_perso_felix = 1
-        depenses_perso_myriam = 1
+        depenses_communes = round(float(request.form['depenses_communes']), 2)
+        depenses_perso_felix = round(float(request.form['depenses_perso_felix']), 2)
+        depenses_perso_myriam = round(float(request.form['depenses_perso_myriam']), 2)
 
         transactions = []
         contribution_totale = 0
