@@ -99,6 +99,15 @@
                 <label for="compte_commun">Etat du compte commun :</label>
                 <input type="number" name="compte_commun" step="0.1" value="{{ request.form.compte_commun }}" required>
 
+                <label for="compte_commun">Charges communes (1 par défaut):</label>
+                <input type="number" name="depenses_communes" step="0.1" value="{{ request.form.depenses_communes or 1 }}" required>
+
+                <label for="compte_commun">Budget perso Félix (1 par défaut):</label>
+                <input type="number" name="depenses_perso_felix" step="0.1" value="{{ request.form.depenses_perso_felix or 1 }}" required>
+
+                <label for="compte_commun">Budget perso Myriam (1 par défaut):</label>
+                <input type="number" name="depenses_perso_myriam" step="0.1" value="{{ request.form.depenses_perso_myriam or 1 }}" required>
+
                 <button type="submit">Calculer</button>
             </form>
         </div>
