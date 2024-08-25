@@ -29,3 +29,7 @@ Enter the financial details for each user in the provided form, including shared
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+##Snapshot
+
+![snapshot]([URL or path to the image](https://i.ibb.co/SJqR3Pf/Capture-d-cran-2024-08-26-003658.png))
